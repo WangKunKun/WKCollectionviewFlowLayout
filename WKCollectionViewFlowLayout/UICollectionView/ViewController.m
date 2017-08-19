@@ -102,7 +102,8 @@ static NSString * cellID = @"WKCollectionViewCell";
 <UICollectionViewDataSource,UICollectionViewDelegate,WKCVMoveFlowLayoutDataSource,WKCVMoveFlowLayoutDelegate>
 
 @property (nonatomic, strong) UICollectionView * collectionView;
-@property (nonatomic, strong) NSMutableArray<UIImage *> * datasource;
+@property (nonatomic, strong) NSMutableArray<NSMutableArray *> * datasource;
+
 //视图style
 @property (nonatomic, strong) ConfigurationFile * collectinViewStyle;
 
@@ -115,6 +116,7 @@ static NSString * cellID = @"WKCollectionViewCell";
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     _datasource = [NSMutableArray array];
+
     //style描述文件
     _collectinViewStyle = [ConfigurationFile shared];
 
@@ -123,7 +125,7 @@ static NSString * cellID = @"WKCollectionViewCell";
     [flowLayout setScrollDirection:_collectinViewStyle.scrollDirection];
 
     
-    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 0, kScreen_Width, kWKCollectionViewSize_Height ) collectionViewLayout:flowLayout];
+    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 0, kScreen_Width, kScreen_Height ) collectionViewLayout:flowLayout];
     _collectionView.dataSource = self;
     _collectionView.delegate = self;
     _collectionView.backgroundColor = [UIColor blackColor];
@@ -132,10 +134,24 @@ static NSString * cellID = @"WKCollectionViewCell";
     [self.view addSubview:_collectionView];
     
     //数据源的由来
-    for (NSUInteger i = 0 ; i < 3; i ++)
+//    for (NSUInteger i = 0 ; i < 3; i ++)
+    NSMutableArray * one = [NSMutableArray array];
+    NSMutableArray * two = [NSMutableArray array];
+
     for (NSUInteger i = 1; i <= 12; i ++) {
-        [_datasource addObject:[UIImage imageNamed:[NSString stringWithFormat:@"%lu",(unsigned long)i]]];
+        if (i <= 6) {
+            [one addObject:[UIImage imageNamed:[NSString stringWithFormat:@"%lu",(unsigned long)i]]];
+
+        }
+        else
+        {
+            [two addObject:[UIImage imageNamed:[NSString stringWithFormat:@"%lu",(unsigned long)i]]];
+        }
     }
+    
+    [_datasource addObject:one];
+    [_datasource addObject:two];
+
 
     
 
@@ -149,21 +165,22 @@ static NSString * cellID = @"WKCollectionViewCell";
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
 
-        return _datasource.count;
+    return _datasource[section].count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
+    
+    
     WKCollectionViewCell * cell = [collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
-    [cell setImage:_datasource[indexPath.row] name:[NSString stringWithFormat:@"%d-%d",indexPath.section,indexPath.item]];
-
+    [cell setImage:_datasource[indexPath.section][indexPath.row] name:[NSString stringWithFormat:@"%d-%d",indexPath.section,indexPath.item]];
     return cell;
     
 }
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
 {
-    return 1;
+    return _datasource.count;
 }
 
 
@@ -173,12 +190,43 @@ static NSString * cellID = @"WKCollectionViewCell";
 - (BOOL)collectionView:(UICollectionView *)collectionView itemAtIndexPath:(NSIndexPath *)fromIndexPath canMoveToIndexPath:(NSIndexPath *)toIndexPath
 {
     NSLog(@"%@",NSStringFromSelector(_cmd));
+    //规定可被交换的范围
+//    toIndexPath.row > 1 && toIndexPath.section <= 0
     return YES;
 }
 
 - (void)collectionView:(UICollectionView *)collectionView itemAtIndexPath:(NSIndexPath *)fromIndexPath willMoveToIndexPath:(NSIndexPath *)toIndexPath
 {
+    
+    if (fromIndexPath.section != toIndexPath.section) {
+        if (fromIndexPath.section == 0) {
+            NSMutableArray * sourceArr = _datasource[0];
+            [_datasource[1] insertObject:sourceArr[fromIndexPath.item] atIndex:toIndexPath.item];
+            [sourceArr removeObjectAtIndex:fromIndexPath.item];
+        }
+        else
+        {
+            NSMutableArray * sourceArr = _datasource[1];
+            [_datasource[0] insertObject:sourceArr[fromIndexPath.item] atIndex:toIndexPath.item];
+            [sourceArr removeObjectAtIndex:fromIndexPath.item];
+        }
+    }
+    else
+    {
+        if (fromIndexPath.section == 0) {
+            UIImage * img = _datasource[0][fromIndexPath.item];
+            [_datasource[0] removeObjectAtIndex:fromIndexPath.item];
+            [_datasource[0] insertObject:img atIndex:toIndexPath.item];
+        }
+        else
+        {
+            UIImage * img = _datasource[1][fromIndexPath.item];
+            [_datasource[1] removeObjectAtIndex:fromIndexPath.item];
+            [_datasource[1] insertObject:img atIndex:toIndexPath.item];
+        }
+    }
     NSLog(@"%@",NSStringFromSelector(_cmd));
+    
 
 }
 
@@ -186,12 +234,13 @@ static NSString * cellID = @"WKCollectionViewCell";
 {
     NSLog(@"%@",NSStringFromSelector(_cmd));
 
-    [_datasource exchangeObjectAtIndex:fromIndexPath.item withObjectAtIndex:toIndexPath.item];
 }
 
 - (BOOL)collectionView:(UICollectionView *)collectionView canMoveItemAtIndexPath:(NSIndexPath *)indexPath
 {
     NSLog(@"%@",NSStringFromSelector(_cmd));
+    //限定可移动的item
+//    indexPath.section <= 0 && indexPath.row > 1
     return YES;
 }
 

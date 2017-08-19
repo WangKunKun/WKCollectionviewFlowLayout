@@ -56,6 +56,8 @@ typedef NS_ENUM(NSInteger, WKScrollDirction) {
 @property (nonatomic, assign) BOOL setUped;
 @property (nonatomic, assign) BOOL needsUpdateLayout;
 
+
+
 @end
 
 @implementation WKCVMoveFlowLayout
@@ -73,6 +75,20 @@ typedef NS_ENUM(NSInteger, WKScrollDirction) {
 - (void)prepareLayout
 {
     [super prepareLayout];
+    _recordingSize = CGSizeMake(60, 60);
+
+    
+    if ([self.delegate respondsToSelector:@selector(minimumInteritemSpacingForCollectionView:)]) {
+        self.minimumInteritemSpacing = [self.delegate minimumInteritemSpacingForCollectionView:self.collectionView];
+    }
+    //获得规划的同组内 根据排列方式不同，为不同行之间的间距/不同列之间的间距
+    if ([self.delegate respondsToSelector:@selector(minimumLineSpacingForCollectionView:)]) {
+        self.minimumLineSpacing = [self.delegate minimumLineSpacingForCollectionView:self.collectionView];
+    }
+    if ([self.delegate respondsToSelector:@selector(insetsForCollectionView:)]) {
+        self.sectionInset = [self.delegate insetsForCollectionView:self.collectionView];
+    }
+    
     //gesture
     [self setUpCollectionViewGesture];
     //scroll triger insets
@@ -143,7 +159,7 @@ typedef NS_ENUM(NSInteger, WKScrollDirction) {
     CGSize boundsSize = self.collectionView.bounds.size;
     CGFloat increment = 0;
     
-    UICollectionViewScrollDirection * scrollD = ((UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout).scrollDirection;
+    UICollectionViewScrollDirection scrollD = ((UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout).scrollDirection;
     
     
     //计算移动距离，最大移动距离为每一次刷新10
@@ -252,6 +268,7 @@ typedef NS_ENUM(NSInteger, WKScrollDirction) {
         {
             //indexPath
             NSIndexPath *indexPath = [self.collectionView indexPathForItemAtPoint:[longPress locationInView:self.collectionView]];
+            
             //can move
             if ([self.datasource respondsToSelector:@selector(collectionView:canMoveItemAtIndexPath:)]) {
                 if (![self.datasource collectionView:self.collectionView canMoveItemAtIndexPath:indexPath]) {
@@ -426,14 +443,67 @@ typedef NS_ENUM(NSInteger, WKScrollDirction) {
     }
     _needsUpdateLayout = YES;
     //move
-    [self.collectionView performBatchUpdates:^{
-        _reorderingCellIndexPath = toIndexPath;
-        [self.collectionView moveItemAtIndexPath:atIndexPath toIndexPath:toIndexPath];
-        if ([self.datasource respondsToSelector:@selector(collectionView:itemAtIndexPath:didMoveToIndexPath:)]) {
-            [self.datasource collectionView:self.collectionView itemAtIndexPath:atIndexPath didMoveToIndexPath:toIndexPath];
+    _reorderingCellIndexPath = toIndexPath;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        @synchronized (self) {
+            @try {
+                [self.collectionView performBatchUpdates:^{
+                    [self.collectionView moveItemAtIndexPath:atIndexPath toIndexPath:toIndexPath];
+                    
+                } completion:^(BOOL finished) {
+                    if (finished) {
+                        if ([self.datasource respondsToSelector:@selector(collectionView:itemAtIndexPath:didMoveToIndexPath:)]) {
+                            [self.datasource collectionView:self.collectionView itemAtIndexPath:atIndexPath didMoveToIndexPath:toIndexPath];
+                        }
+                    }
+                }];
+            } @catch (NSException *exception) {
+                NSLog(@"%@",exception.description);
+            } @finally {
+                
+            }
+            
         }
-    } completion:nil];
+    });
+
 }
+
+//- (void)xwp_updateDataSource{
+//    NSMutableArray *temp = @[].mutableCopy;
+//    //获取数据源
+//    if ([self.dataSource respondsToSelector:@selector(dataSourceArrayOfCollectionView:)]) {
+//        [temp addObjectsFromArray:[self.dataSource dataSourceArrayOfCollectionView:self]];
+//    }
+//    //判断数据源是单个数组还是数组套数组的多section形式，YES表示数组套数组
+//    BOOL dataTypeCheck = ([self numberOfSections] != 1 || ([self numberOfSections] == 1 && [temp[0] isKindOfClass:[NSArray class]]));
+//    if (dataTypeCheck) {
+//        for (int i = 0; i < temp.count; i ++) {
+//            [temp replaceObjectAtIndex:i withObject:[temp[i] mutableCopy]];
+//        }
+//    }
+//    if (_moveIndexPath.section == _originalIndexPath.section) {
+//        NSMutableArray *orignalSection = dataTypeCheck ? temp[_originalIndexPath.section] : temp;
+//        if (_moveIndexPath.item > _originalIndexPath.item) {
+//            for (NSUInteger i = _originalIndexPath.item; i < _moveIndexPath.item ; i ++) {
+//                [orignalSection exchangeObjectAtIndex:i withObjectAtIndex:i + 1];
+//            }
+//        }else{
+//            for (NSUInteger i = _originalIndexPath.item; i > _moveIndexPath.item ; i --) {
+//                [orignalSection exchangeObjectAtIndex:i withObjectAtIndex:i - 1];
+//            }
+//        }
+//    }else{
+//        NSMutableArray *orignalSection = temp[_originalIndexPath.section];
+//        NSMutableArray *currentSection = temp[_moveIndexPath.section];
+//        [currentSection insertObject:orignalSection[_originalIndexPath.item] atIndex:_moveIndexPath.item];
+//        [orignalSection removeObject:orignalSection[_originalIndexPath.item]];
+//    }
+//    //将重排好的数据传递给外部
+//    if ([self.delegate respondsToSelector:@selector(dragCellCollectionView:newDataArrayAfterMove:)]) {
+//        [self.delegate dragCellCollectionView:self newDataArrayAfterMove:temp.copy];
+//    }
+//}
+
 
 #pragma mark - UIGestureRecognizerDelegate methods
 

@@ -6,12 +6,12 @@
 //  Copyright © 2015年 王琨. All rights reserved.
 //
 
-#import "WKCollectionViewFlowLayout.h"
+#import <UIKit/UIKit.h>
 
 
 
 
-@protocol WKCVMoveFlowLayoutDelegate <WKCollectionViewDelegateFlowLayout>
+@protocol WKCVMoveFlowLayoutDelegate <UICollectionViewDelegateFlowLayout>
 
 @optional
 
@@ -24,9 +24,15 @@
 - (void)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout willEndDraggingItemAtIndexPath:(NSIndexPath *)indexPath;
 - (void)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout didEndDraggingItemAtIndexPath:(NSIndexPath *)indexPath;
 
+- (CGSize)collectionView:(UICollectionView *)collectionView sizeForItemsInSection:(NSInteger)section;
+- (UIEdgeInsets)insetsForCollectionView:(UICollectionView *)collectionView;
+- (CGFloat)sectionSpacingForCollectionView:(UICollectionView *)collectionView;
+- (CGFloat)minimumInteritemSpacingForCollectionView:(UICollectionView *)collectionView;
+- (CGFloat)minimumLineSpacingForCollectionView:(UICollectionView *)collectionView;
+
 @end
 
-@protocol WKCVMoveFlowLayoutDataSource <WKCollectionViewDataSourceFlowLayout>
+@protocol WKCVMoveFlowLayoutDataSource <UICollectionViewDataSource>
 
 @optional
 
@@ -38,12 +44,12 @@
 @end
 
 
-@interface WKCVMoveFlowLayout : WKCollectionViewFlowLayout <UIGestureRecognizerDelegate>
+@interface WKCVMoveFlowLayout : UICollectionViewFlowLayout <UIGestureRecognizerDelegate>
 
 @property (nonatomic, assign) id<WKCVMoveFlowLayoutDelegate> delegate;
 @property (nonatomic, assign) id<WKCVMoveFlowLayoutDataSource> datasource;
 @property (nonatomic, strong, readonly) UILongPressGestureRecognizer *longPressGesture;
 @property (nonatomic, strong, readonly) UIPanGestureRecognizer *panGesture;
-
+@property (nonatomic, assign) CGSize recordingSize;//用于生成移动图的大小
 @end
 
