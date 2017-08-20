@@ -123,6 +123,8 @@ static NSString * cellID = @"WKCollectionViewCell";
     //FlowLayout样式
     WKCVMoveFlowLayout * flowLayout = [[WKCVMoveFlowLayout alloc] init];
     [flowLayout setScrollDirection:_collectinViewStyle.scrollDirection];
+    flowLayout.isAutoDelete = YES;
+    flowLayout.isAutoInsert = YES;
     
     _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 0, kScreen_Width, kScreen_Height ) collectionViewLayout:flowLayout];
     _collectionView.dataSource = self;

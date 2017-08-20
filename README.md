@@ -12,18 +12,24 @@
 
 1. 功能
 
-		代码中实现了可对CollectionView中的Cell进行自由拖动，在拖动过程中会和其他Cell交换位置，并在拖动跨页时CollectionView会自动滚动，支持横向竖向。
+	**简介：实现了cell可拖动功能的flowlaout**
+	
+	- cell拖动范围自由定制（同组拖动，跨组拖动，某组不能拖动）
+	- 可设置指定cell不可被拖动不可被交换
+	- cell拖动到section中空白无cell处后自动插入(开关isAutoInsert，默认关闭)
+	- cell拖动处collecitonview有效区域自动删除(开关 isAutoDelete,默认关闭)
+	- 拖动cell时至屏幕需翻页且可翻页时自动滚动 
 		
 2. 高度监控
 
-		并借鉴于RACollectionViewReorderableTripletLayout利用代理模式，提供了一系列的方法实时监控Cell的布局位置和数据位置。
+	- 利用代理模式，提供了一系列的方法实时监控Cell的布局位置和数据位置
 	
 	
 3. 高度方便定制
 		
 		仅需通过配置CollectionViewStyle.plist文件可迅速定制CollectionView布局的一系列的属性如：
 		MaximumEffectiveRangeOfAutoScroll 触发自动滚动的范围
-		SectionSpacing 分组间距（注item的拖动移位不支持跨分组）
+		SectionSpacing 分组间距
 		ItemSpacing cell间距
 		LineSpacing 行/列间距
 		CellSize	Cell的宽高

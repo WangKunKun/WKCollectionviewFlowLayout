@@ -75,7 +75,6 @@ typedef NS_ENUM(NSInteger, WKScrollDirction) {
 {
     [super prepareLayout];
     _recordingSize = CGSizeMake(60, 60);
-
     
     if ([self.delegate respondsToSelector:@selector(minimumInteritemSpacingForCollectionView:)]) {
         self.minimumInteritemSpacing = [self.delegate minimumInteritemSpacingForCollectionView:self.collectionView];
@@ -339,29 +338,32 @@ typedef NS_ENUM(NSInteger, WKScrollDirction) {
             CGPoint point = [longPress locationInView:self.collectionView];
             NSIndexPath *toIndexPath = [self.collectionView indexPathForItemAtPoint:point];
             BOOL canMove = YES;
-            if ([self.datasource respondsToSelector:@selector(collectionView:itemAtIndexPath:canMoveToIndexPath:)]) {
-                canMove = [self.datasource collectionView:self.collectionView itemAtIndexPath:currentCellIndexPath canMoveToIndexPath:toIndexPath];
-            }
-            if (toIndexPath == nil) {
-                //判断 当前点是否在  cv的contentsize内，内则不消失，外则消失
-                CGRect rect = self.collectionView.frame;
-                switch (self.scrollDirection) {
-                    case UICollectionViewScrollDirectionVertical:
-                        if (rect.size.height > self.collectionView.contentSize.height) {
-                            rect = CGRectMake(rect.origin.x, rect.origin.y, rect.size.width, self.collectionView.contentSize.height);
-                        }
-                        break;
-                    case UICollectionViewScrollDirectionHorizontal:
-                        if (rect.size.width > self.collectionView.contentSize.width) {
-                            rect = CGRectMake(rect.origin.x, rect.origin.y, self.collectionView.contentSize.width, rect.size.height);
-                        }
-                        break;
-                    default:
-                        break;
+            if (_isAutoDelete) {
+                if ([self.datasource respondsToSelector:@selector(collectionView:itemAtIndexPath:canMoveToIndexPath:)]) {
+                    canMove = [self.datasource collectionView:self.collectionView itemAtIndexPath:currentCellIndexPath canMoveToIndexPath:toIndexPath];
                 }
-                
-                canMove = CGRectContainsPoint(rect, point);
+                if (toIndexPath == nil) {
+                    //判断 当前点是否在  cv的contentsize内，内则不消失，外则消失
+                    CGRect rect = self.collectionView.frame;
+                    switch (self.scrollDirection) {
+                        case UICollectionViewScrollDirectionVertical:
+                            if (rect.size.height > self.collectionView.contentSize.height) {
+                                rect = CGRectMake(rect.origin.x, rect.origin.y, rect.size.width, self.collectionView.contentSize.height);
+                            }
+                            break;
+                        case UICollectionViewScrollDirectionHorizontal:
+                            if (rect.size.width > self.collectionView.contentSize.width) {
+                                rect = CGRectMake(rect.origin.x, rect.origin.y, self.collectionView.contentSize.width, rect.size.height);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                    
+                    canMove = CGRectContainsPoint(rect, point);
+                }
             }
+
             
             //回归动画
             //如果是删除操作，首先得到model
@@ -490,33 +492,36 @@ typedef NS_ENUM(NSInteger, WKScrollDirction) {
         CGPoint position = CGPointMake(_cellFakeView.center.x, _cellFakeView.center.y - _cellFakeView.size.height/2.0f);
         toIndexPath = [self.collectionView indexPathForItemAtPoint:position];
         
-        if (nil == toIndexPath)
-        {
-            NSInteger rightSection = - 1;
-            //进阶操作 添加
-            NSArray<NSValue *> * arr = [self calculateSectionsFrame];
-            for (NSUInteger i = 0 ; i < arr.count ; i++) {
-                CGRect sectionFrame = [arr[i] CGRectValue];
-                if (CGRectContainsPoint(sectionFrame, position)) {
-                    rightSection = i;
-                }
-            }
-            //变插入 
-            if (rightSection >= 0)
+        if (_isAutoInsert) {
+            if (nil == toIndexPath)
             {
-                NSInteger row = -1;
-                if ([self.datasource collectionView:self.collectionView numberOfItemsInSection:rightSection]) {
-                    row = [self.datasource collectionView:self.collectionView numberOfItemsInSection:rightSection];
+                NSInteger rightSection = - 1;
+                //进阶操作 添加
+                NSArray<NSValue *> * arr = [self calculateSectionsFrame];
+                for (NSUInteger i = 0 ; i < arr.count ; i++) {
+                    CGRect sectionFrame = [arr[i] CGRectValue];
+                    if (CGRectContainsPoint(sectionFrame, position)) {
+                        rightSection = i;
+                    }
                 }
-                if (row>=0) {
-                    toIndexPath = [NSIndexPath indexPathForRow:row inSection:rightSection];
+                //变插入
+                if (rightSection >= 0)
+                {
+                    NSInteger row = -1;
+                    if ([self.datasource collectionView:self.collectionView numberOfItemsInSection:rightSection]) {
+                        row = [self.datasource collectionView:self.collectionView numberOfItemsInSection:rightSection];
+                    }
+                    if (row>=0) {
+                        toIndexPath = [NSIndexPath indexPathForRow:row inSection:rightSection];
+                    }
                 }
-            }
-            
-            if (toIndexPath.section == atIndexPath.section) {
-                toIndexPath = nil;
+                
+                if (toIndexPath.section == atIndexPath.section) {
+                    toIndexPath = nil;
+                }
             }
         }
+
     }
     
 

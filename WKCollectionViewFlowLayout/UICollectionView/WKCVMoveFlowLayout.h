@@ -59,7 +59,9 @@ typedef enum : NSUInteger {
 @property (nonatomic, strong, readonly) UIPanGestureRecognizer *panGesture;
 @property (nonatomic, assign) CGSize recordingSize;//用于生成移动图的大小
 
-//- (void)calculateSectionsFrame;
+//默认开启
+@property (nonatomic, assign) BOOL isAutoDelete;//拖动处有效区域自动删除
+@property (nonatomic, assign) BOOL isAutoInsert;//拖动到section范围的空白区域 自动插入
 
 @end
 
