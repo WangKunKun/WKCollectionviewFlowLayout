@@ -292,7 +292,6 @@ static NSString * cellID = @"WKCollectionViewCell";
     switch (state) {
         case WKFlowLayoutState_Move:
             break;
-            
         case WKFlowLayoutState_Delete:
         {
             [_datasource[indexPath.section] removeObjectAtIndex:indexPath.row];

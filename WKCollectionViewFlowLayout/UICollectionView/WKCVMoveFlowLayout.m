@@ -475,6 +475,7 @@ typedef NS_ENUM(NSInteger, WKScrollDirction) {
         CGPoint position = CGPointMake(_cellFakeView.center.x, _cellFakeView.center.y - _cellFakeView.size.height/2.0f);
         toIndexPath = [self.collectionView indexPathForItemAtPoint:position];
         
+        //修正如果当前点为section中无cell的空白区域，则变更为插入
         if (_isAutoInsert) {
             if (nil == toIndexPath)
             {
@@ -596,6 +597,7 @@ typedef NS_ENUM(NSInteger, WKScrollDirction) {
 }
 
 
+//计算section的frame
 - (NSArray<NSValue *> *)calculateSectionsFrame
 {
     NSUInteger sections = [self.collectionView numberOfSections];
