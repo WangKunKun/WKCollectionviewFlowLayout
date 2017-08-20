@@ -320,7 +320,7 @@ typedef NS_ENUM(NSInteger, WKScrollDirction) {
             
         case UIGestureRecognizerStateEnded:
         case UIGestureRecognizerStateCancelled: {
-            NSIndexPath *currentCellIndexPath = _reorderingCellIndexPath;
+            NSIndexPath *currentCellIndexPath = [_reorderingCellIndexPath copy];
             //will end dragging
             if ([self.delegate respondsToSelector:@selector(collectionView:layout:willEndDraggingItemAtIndexPath:)]) {
                 [self.delegate collectionView:self.collectionView layout:self willEndDraggingItemAtIndexPath:currentCellIndexPath];
@@ -328,24 +328,89 @@ typedef NS_ENUM(NSInteger, WKScrollDirction) {
             _needsUpdateLayout = YES;
 
             [self invalidateDisplayLink];
-            UICollectionViewCell * cell = [self.collectionView cellForItemAtIndexPath:currentCellIndexPath];
-            UICollectionViewLayoutAttributes *attributes = [self layoutAttributesForItemAtIndexPath:currentCellIndexPath];
-            [UIView animateWithDuration:.3f delay:0 options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionCurveEaseInOut animations:^{
-                _cellFakeView.transform = CGAffineTransformIdentity;
-                _cellFakeView.frame = attributes.frame;
-            } completion:^(BOOL finished) {
-                [_cellFakeView removeFromSuperview];
-                _cellFakeView = nil;
-                _reorderingCellIndexPath = nil;
-                _reorderingCellCenter = CGPointZero;
-                _cellFakeViewCenter = CGPointZero;
-                if (finished) {
-                    cell.hidden = NO;
-                    if ([self.delegate respondsToSelector:@selector(collectionView:layout:didEndDraggingItemAtIndexPath:)]) {
-                        [self.delegate collectionView:self.collectionView layout:self didEndDraggingItemAtIndexPath:currentCellIndexPath];
-                    }
+
+            CGPoint point = [longPress locationInView:self.collectionView];
+            NSIndexPath *toIndexPath = [self.collectionView indexPathForItemAtPoint:point];
+
+            
+            BOOL canMove = YES;
+            if ([self.datasource respondsToSelector:@selector(collectionView:itemAtIndexPath:canMoveToIndexPath:)]) {
+                canMove = [self.datasource collectionView:self.collectionView itemAtIndexPath:currentCellIndexPath canMoveToIndexPath:toIndexPath];
+            }
+            
+            
+            if (toIndexPath == nil) {
+                //判断 当前点是否在  cv的contentsize内，内则不消失，外则消失
+                CGRect rect = self.collectionView.frame;
+                switch (self.scrollDirection) {
+                    case UICollectionViewScrollDirectionVertical:
+                        if (rect.size.height > self.collectionView.contentSize.height) {
+                            rect = CGRectMake(rect.origin.x, rect.origin.y, rect.size.width, self.collectionView.contentSize.height);
+                        }
+                        break;
+                    case UICollectionViewScrollDirectionHorizontal:
+                        if (rect.size.width > self.collectionView.contentSize.width) {
+                            rect = CGRectMake(rect.origin.x, rect.origin.y, self.collectionView.contentSize.width, rect.size.height);
+                        }
+                        break;
+                    default:
+                        break;
                 }
-            }];
+                
+                canMove = CGRectContainsPoint(rect, point);
+            }
+            
+            //回归动画
+            //如果是删除操作，首先得到model
+            //如果不可移动 则删除
+            if (!canMove) {
+                UICollectionViewCell * cell = [self.collectionView cellForItemAtIndexPath:currentCellIndexPath];
+                [UIView animateWithDuration:.3f delay:0 options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionCurveEaseInOut animations:^{
+                    
+                    _cellFakeView.transform = CGAffineTransformMakeScale(0.05, 0.05);
+                    _cellFakeView.alpha = 0;
+                } completion:^(BOOL finished) {
+                    [_cellFakeView removeFromSuperview];
+                    _cellFakeView = nil;
+                    _reorderingCellIndexPath = nil;
+                    _reorderingCellCenter = CGPointZero;
+                    _cellFakeViewCenter = CGPointZero;
+                    if (finished) {
+                        if ([self.delegate respondsToSelector:@selector(collectionView:layout:didEndDraggingItemAtIndexPath:isDelete:)]) {
+                            [self.delegate collectionView:self.collectionView layout:self didEndDraggingItemAtIndexPath:currentCellIndexPath isDelete:YES];
+                        }
+                        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.23 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                            cell.hidden = NO;
+                        });
+
+                    }
+                }];
+            }
+            else
+            {
+            
+            
+            //返回动画
+            //得到之前的位置，然后得到frame，用动画返回
+                UICollectionViewCell * cell = [self.collectionView cellForItemAtIndexPath:currentCellIndexPath];
+                UICollectionViewLayoutAttributes *attributes = [self layoutAttributesForItemAtIndexPath:currentCellIndexPath];
+                [UIView animateWithDuration:.3f delay:0 options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionCurveEaseInOut animations:^{
+                    _cellFakeView.transform = CGAffineTransformIdentity;
+                    _cellFakeView.frame = attributes.frame;
+                } completion:^(BOOL finished) {
+                    [_cellFakeView removeFromSuperview];
+                    _cellFakeView = nil;
+                    _reorderingCellIndexPath = nil;
+                    _reorderingCellCenter = CGPointZero;
+                    _cellFakeViewCenter = CGPointZero;
+                    if (finished) {
+                        cell.hidden = NO;
+                        if ([self.delegate respondsToSelector:@selector(collectionView:layout:didEndDraggingItemAtIndexPath:isDelete:)]) {
+                            [self.delegate collectionView:self.collectionView layout:self didEndDraggingItemAtIndexPath:currentCellIndexPath isDelete:NO];
+                        }
+                    }
+                }];
+            }
             break;
         }
         default:
@@ -428,8 +493,6 @@ typedef NS_ENUM(NSInteger, WKScrollDirction) {
         return;
     }
     
-    
-    
     //can move
     if ([self.datasource respondsToSelector:@selector(collectionView:itemAtIndexPath:canMoveToIndexPath:)]) {
         if (![self.datasource collectionView:self.collectionView itemAtIndexPath:atIndexPath canMoveToIndexPath:toIndexPath]) {
@@ -467,42 +530,6 @@ typedef NS_ENUM(NSInteger, WKScrollDirction) {
     });
 
 }
-
-//- (void)xwp_updateDataSource{
-//    NSMutableArray *temp = @[].mutableCopy;
-//    //获取数据源
-//    if ([self.dataSource respondsToSelector:@selector(dataSourceArrayOfCollectionView:)]) {
-//        [temp addObjectsFromArray:[self.dataSource dataSourceArrayOfCollectionView:self]];
-//    }
-//    //判断数据源是单个数组还是数组套数组的多section形式，YES表示数组套数组
-//    BOOL dataTypeCheck = ([self numberOfSections] != 1 || ([self numberOfSections] == 1 && [temp[0] isKindOfClass:[NSArray class]]));
-//    if (dataTypeCheck) {
-//        for (int i = 0; i < temp.count; i ++) {
-//            [temp replaceObjectAtIndex:i withObject:[temp[i] mutableCopy]];
-//        }
-//    }
-//    if (_moveIndexPath.section == _originalIndexPath.section) {
-//        NSMutableArray *orignalSection = dataTypeCheck ? temp[_originalIndexPath.section] : temp;
-//        if (_moveIndexPath.item > _originalIndexPath.item) {
-//            for (NSUInteger i = _originalIndexPath.item; i < _moveIndexPath.item ; i ++) {
-//                [orignalSection exchangeObjectAtIndex:i withObjectAtIndex:i + 1];
-//            }
-//        }else{
-//            for (NSUInteger i = _originalIndexPath.item; i > _moveIndexPath.item ; i --) {
-//                [orignalSection exchangeObjectAtIndex:i withObjectAtIndex:i - 1];
-//            }
-//        }
-//    }else{
-//        NSMutableArray *orignalSection = temp[_originalIndexPath.section];
-//        NSMutableArray *currentSection = temp[_moveIndexPath.section];
-//        [currentSection insertObject:orignalSection[_originalIndexPath.item] atIndex:_moveIndexPath.item];
-//        [orignalSection removeObject:orignalSection[_originalIndexPath.item]];
-//    }
-//    //将重排好的数据传递给外部
-//    if ([self.delegate respondsToSelector:@selector(dragCellCollectionView:newDataArrayAfterMove:)]) {
-//        [self.delegate dragCellCollectionView:self newDataArrayAfterMove:temp.copy];
-//    }
-//}
 
 
 #pragma mark - UIGestureRecognizerDelegate methods

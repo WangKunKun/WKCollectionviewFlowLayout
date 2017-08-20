@@ -123,7 +123,6 @@ static NSString * cellID = @"WKCollectionViewCell";
     //FlowLayout样式
     WKCVMoveFlowLayout * flowLayout = [[WKCVMoveFlowLayout alloc] init];
     [flowLayout setScrollDirection:_collectinViewStyle.scrollDirection];
-
     
     _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 0, kScreen_Width, kScreen_Height ) collectionViewLayout:flowLayout];
     _collectionView.dataSource = self;
@@ -192,6 +191,8 @@ static NSString * cellID = @"WKCollectionViewCell";
     NSLog(@"%@",NSStringFromSelector(_cmd));
     //规定可被交换的范围
 //    toIndexPath.row > 1 && toIndexPath.section <= 0
+#pragma waring 此处定义item可交换区域
+//    fromIndexPath.section == toIndexPath.section 同组内交换
     return YES;
 }
 
@@ -199,31 +200,17 @@ static NSString * cellID = @"WKCollectionViewCell";
 {
     
     if (fromIndexPath.section != toIndexPath.section) {
-        if (fromIndexPath.section == 0) {
-            NSMutableArray * sourceArr = _datasource[0];
-            [_datasource[1] insertObject:sourceArr[fromIndexPath.item] atIndex:toIndexPath.item];
+            NSMutableArray * sourceArr = _datasource[fromIndexPath.section];
+            [_datasource[toIndexPath.section] insertObject:sourceArr[fromIndexPath.item] atIndex:toIndexPath.item];
             [sourceArr removeObjectAtIndex:fromIndexPath.item];
-        }
-        else
-        {
-            NSMutableArray * sourceArr = _datasource[1];
-            [_datasource[0] insertObject:sourceArr[fromIndexPath.item] atIndex:toIndexPath.item];
-            [sourceArr removeObjectAtIndex:fromIndexPath.item];
-        }
+
     }
     else
     {
-        if (fromIndexPath.section == 0) {
-            UIImage * img = _datasource[0][fromIndexPath.item];
-            [_datasource[0] removeObjectAtIndex:fromIndexPath.item];
-            [_datasource[0] insertObject:img atIndex:toIndexPath.item];
-        }
-        else
-        {
-            UIImage * img = _datasource[1][fromIndexPath.item];
-            [_datasource[1] removeObjectAtIndex:fromIndexPath.item];
-            [_datasource[1] insertObject:img atIndex:toIndexPath.item];
-        }
+            UIImage * img = _datasource[fromIndexPath.section][fromIndexPath.item];
+            [_datasource[fromIndexPath.section] removeObjectAtIndex:fromIndexPath.item];
+            [_datasource[fromIndexPath.section] insertObject:img atIndex:toIndexPath.item];
+
     }
     NSLog(@"%@",NSStringFromSelector(_cmd));
     
@@ -241,6 +228,7 @@ static NSString * cellID = @"WKCollectionViewCell";
     NSLog(@"%@",NSStringFromSelector(_cmd));
     //限定可移动的item
 //    indexPath.section <= 0 && indexPath.row > 1
+#pragma waring 此处定义 item是否可移动
     return YES;
 }
 
@@ -292,10 +280,16 @@ static NSString * cellID = @"WKCollectionViewCell";
 }
 
 //重新刷新数据
-- (void)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout didEndDraggingItemAtIndexPath:(NSIndexPath *)indexPath
+- (void)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout didEndDraggingItemAtIndexPath:(NSIndexPath *)indexPath isDelete:(BOOL)isDelete
 {
     NSLog(@"%@",NSStringFromSelector(_cmd));
-    [self.collectionView reloadData];
+    if (isDelete) {
+        [_datasource[indexPath.section] removeObjectAtIndex:indexPath.row];
+        [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
+
+//        [self.collectionView reloadSections:[NSIndexSet indexSetWithIndex:indexPath.section]];
+    }
+//    [self.collectionView reloadData];
 }
 
 
