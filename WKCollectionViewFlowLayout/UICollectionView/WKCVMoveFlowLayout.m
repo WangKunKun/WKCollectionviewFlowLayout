@@ -363,17 +363,22 @@ typedef NS_ENUM(NSInteger, WKScrollDirction) {
                     canMove = CGRectContainsPoint(rect, point);
                 }
             }
-
-            
             //回归动画
             //如果是删除操作，首先得到model
             //如果不可移动 则删除
-            if (!canMove) {
                 UICollectionViewCell * cell = [self.collectionView cellForItemAtIndexPath:currentCellIndexPath];
+                UICollectionViewLayoutAttributes *attributes = [self layoutAttributesForItemAtIndexPath:currentCellIndexPath];
                 [UIView animateWithDuration:.3f delay:0 options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionCurveEaseInOut animations:^{
                     
-                    _cellFakeView.transform = CGAffineTransformMakeScale(0.05, 0.05);
-                    _cellFakeView.alpha = 0;
+                    if (!canMove) {
+                        _cellFakeView.transform = CGAffineTransformMakeScale(0.05, 0.05);
+                        _cellFakeView.alpha = 0;
+                    }else
+                    {
+                        _cellFakeView.transform = CGAffineTransformIdentity;
+                        _cellFakeView.frame = attributes.frame;
+                    }
+
                 } completion:^(BOOL finished) {
                     [_cellFakeView removeFromSuperview];
                     _cellFakeView = nil;
@@ -381,40 +386,18 @@ typedef NS_ENUM(NSInteger, WKScrollDirction) {
                     _reorderingCellCenter = CGPointZero;
                     _cellFakeViewCenter = CGPointZero;
                     if (finished) {
-                        if ([self.delegate respondsToSelector:@selector(collectionView:layout:didEndDraggingItemAtIndexPath:isDelete:)]) {
-                            [self.delegate collectionView:self.collectionView layout:self didEndDraggingItemAtIndexPath:currentCellIndexPath isDelete:YES];
+                        if ([self.delegate respondsToSelector:@selector(collectionView:layout:didEndDraggingItemAtIndexPath:state:)]) {
+                            [self.delegate collectionView:self.collectionView layout:self didEndDraggingItemAtIndexPath:currentCellIndexPath state:(canMove ? WKFlowLayoutState_Move : WKFlowLayoutState_Delete)];
                         }
                         //删除的话 延迟 展示，防止更新cv的时候 出现
-                        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.23 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((canMove ? 0 : 0.23) * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                             cell.hidden = NO;
                         });
 
                     }
                 }];
-            }
-            else
-            {
-            //返回动画
-            //得到之前的位置，然后得到frame，用动画返回
-                UICollectionViewCell * cell = [self.collectionView cellForItemAtIndexPath:currentCellIndexPath];
-                UICollectionViewLayoutAttributes *attributes = [self layoutAttributesForItemAtIndexPath:currentCellIndexPath];
-                [UIView animateWithDuration:.3f delay:0 options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionCurveEaseInOut animations:^{
-                    _cellFakeView.transform = CGAffineTransformIdentity;
-                    _cellFakeView.frame = attributes.frame;
-                } completion:^(BOOL finished) {
-                    [_cellFakeView removeFromSuperview];
-                    _cellFakeView = nil;
-                    _reorderingCellIndexPath = nil;
-                    _reorderingCellCenter = CGPointZero;
-                    _cellFakeViewCenter = CGPointZero;
-                    if (finished) {
-                        cell.hidden = NO;
-                        if ([self.delegate respondsToSelector:@selector(collectionView:layout:didEndDraggingItemAtIndexPath:isDelete:)]) {
-                            [self.delegate collectionView:self.collectionView layout:self didEndDraggingItemAtIndexPath:currentCellIndexPath isDelete:NO];
-                        }
-                    }
-                }];
-            }
+            
+
             break;
         }
         default:

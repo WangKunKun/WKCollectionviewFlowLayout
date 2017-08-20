@@ -9,10 +9,9 @@
 #import <UIKit/UIKit.h>
 
 typedef enum : NSUInteger {
-    WKCellMoveState_Back,
-    WKCellMoveState_Delete,
-    WKCellMoveState_Insert,
-} WKCellMoveState;
+    WKFlowLayoutState_Move,
+    WKFlowLayoutState_Delete,
+} WKFlowLayoutState;
 
 
 @protocol WKCVMoveFlowLayoutDelegate <UICollectionViewDelegateFlowLayout>
@@ -27,7 +26,7 @@ typedef enum : NSUInteger {
 - (void)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout didBeginDraggingItemAtIndexPath:(NSIndexPath *)indexPath;
 - (void)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout willEndDraggingItemAtIndexPath:(NSIndexPath *)indexPath;
 //最后一个参数 是否执行删除操作
-- (void)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout didEndDraggingItemAtIndexPath:(NSIndexPath *)indexPath isDelete:(BOOL)isDelete;
+- (void)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout didEndDraggingItemAtIndexPath:(NSIndexPath *)indexPath state:(WKFlowLayoutState)state;
 
 - (CGSize)collectionView:(UICollectionView *)collectionView sizeForItemsInSection:(NSInteger)section;
 - (UIEdgeInsets)insetsForCollectionView:(UICollectionView *)collectionView;

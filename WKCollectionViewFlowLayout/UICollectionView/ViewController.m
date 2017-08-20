@@ -286,14 +286,20 @@ static NSString * cellID = @"WKCollectionViewCell";
 }
 
 //重新刷新数据
-- (void)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout didEndDraggingItemAtIndexPath:(NSIndexPath *)indexPath isDelete:(BOOL)isDelete
+- (void)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout didEndDraggingItemAtIndexPath:(NSIndexPath *)indexPath state:(WKFlowLayoutState)state
 {
     NSLog(@"%@",NSStringFromSelector(_cmd));
-    if (isDelete) {
-        [_datasource[indexPath.section] removeObjectAtIndex:indexPath.row];
-        [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
+    switch (state) {
+        case WKFlowLayoutState_Move:
+            break;
+            
+        case WKFlowLayoutState_Delete:
+        {
+            [_datasource[indexPath.section] removeObjectAtIndex:indexPath.row];
+            [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
+        }
+            break;
     }
-    [collectionView reloadData];
 }
 
 
