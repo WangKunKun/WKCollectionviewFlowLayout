@@ -286,10 +286,7 @@ static NSString * cellID = @"WKCollectionViewCell";
     if (isDelete) {
         [_datasource[indexPath.section] removeObjectAtIndex:indexPath.row];
         [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
-
-//        [self.collectionView reloadSections:[NSIndexSet indexSetWithIndex:indexPath.section]];
     }
-//    [self.collectionView reloadData];
 }
 
 
