@@ -57,7 +57,6 @@ typedef NS_ENUM(NSInteger, WKScrollDirction) {
 @property (nonatomic, assign) BOOL needsUpdateLayout;
 
 
-
 @end
 
 @implementation WKCVMoveFlowLayout
@@ -268,6 +267,10 @@ typedef NS_ENUM(NSInteger, WKScrollDirction) {
         {
             //indexPath
             NSIndexPath *indexPath = [self.collectionView indexPathForItemAtPoint:[longPress locationInView:self.collectionView]];
+            //长按手势 可能无indexpath
+            if (nil == indexPath) {
+                return;
+            }
             
             //can move
             if ([self.datasource respondsToSelector:@selector(collectionView:canMoveItemAtIndexPath:)]) {
@@ -321,6 +324,11 @@ typedef NS_ENUM(NSInteger, WKScrollDirction) {
         case UIGestureRecognizerStateEnded:
         case UIGestureRecognizerStateCancelled: {
             NSIndexPath *currentCellIndexPath = [_reorderingCellIndexPath copy];
+            
+            //长按手势 可能无indexpath
+            if (!currentCellIndexPath) {
+                return;
+            }
             //will end dragging
             if ([self.delegate respondsToSelector:@selector(collectionView:layout:willEndDraggingItemAtIndexPath:)]) {
                 [self.delegate collectionView:self.collectionView layout:self willEndDraggingItemAtIndexPath:currentCellIndexPath];
@@ -328,17 +336,12 @@ typedef NS_ENUM(NSInteger, WKScrollDirction) {
             _needsUpdateLayout = YES;
 
             [self invalidateDisplayLink];
-
             CGPoint point = [longPress locationInView:self.collectionView];
             NSIndexPath *toIndexPath = [self.collectionView indexPathForItemAtPoint:point];
-
-            
             BOOL canMove = YES;
             if ([self.datasource respondsToSelector:@selector(collectionView:itemAtIndexPath:canMoveToIndexPath:)]) {
                 canMove = [self.datasource collectionView:self.collectionView itemAtIndexPath:currentCellIndexPath canMoveToIndexPath:toIndexPath];
             }
-            
-            
             if (toIndexPath == nil) {
                 //判断 当前点是否在  cv的contentsize内，内则不消失，外则消失
                 CGRect rect = self.collectionView.frame;
@@ -379,6 +382,7 @@ typedef NS_ENUM(NSInteger, WKScrollDirction) {
                         if ([self.delegate respondsToSelector:@selector(collectionView:layout:didEndDraggingItemAtIndexPath:isDelete:)]) {
                             [self.delegate collectionView:self.collectionView layout:self didEndDraggingItemAtIndexPath:currentCellIndexPath isDelete:YES];
                         }
+                        //删除的话 延迟 展示，防止更新cv的时候 出现
                         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.23 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                             cell.hidden = NO;
                         });
@@ -388,8 +392,6 @@ typedef NS_ENUM(NSInteger, WKScrollDirction) {
             }
             else
             {
-            
-            
             //返回动画
             //得到之前的位置，然后得到frame，用动画返回
                 UICollectionViewCell * cell = [self.collectionView cellForItemAtIndexPath:currentCellIndexPath];
@@ -483,10 +485,42 @@ typedef NS_ENUM(NSInteger, WKScrollDirction) {
     NSIndexPath *toIndexPath = [self.collectionView indexPathForItemAtPoint:_cellFakeView.center];
     
     //修正toIndexPath 防止由于 fakeview 自动滚动后 由于没有toIndexPath 导致cell丢失
-    if (nil == toIndexPath ) {
+    if (nil == toIndexPath )
+    {
         CGPoint position = CGPointMake(_cellFakeView.center.x, _cellFakeView.center.y - _cellFakeView.size.height/2.0f);
         toIndexPath = [self.collectionView indexPathForItemAtPoint:position];
+        
+        if (nil == toIndexPath)
+        {
+            NSInteger rightSection = - 1;
+            //进阶操作 添加
+            NSArray<NSValue *> * arr = [self calculateSectionsFrame];
+            for (NSUInteger i = 0 ; i < arr.count ; i++) {
+                CGRect sectionFrame = [arr[i] CGRectValue];
+                if (CGRectContainsPoint(sectionFrame, position)) {
+                    rightSection = i;
+                }
+            }
+            //变插入 
+            if (rightSection >= 0)
+            {
+                NSInteger row = -1;
+                if ([self.datasource collectionView:self.collectionView numberOfItemsInSection:rightSection]) {
+                    row = [self.datasource collectionView:self.collectionView numberOfItemsInSection:rightSection];
+                }
+                if (row>=0) {
+                    toIndexPath = [NSIndexPath indexPathForRow:row inSection:rightSection];
+                }
+            }
+            
+            if (toIndexPath.section == atIndexPath.section) {
+                toIndexPath = nil;
+            }
+        }
     }
+    
+
+
     
     // 位置不变时，不做操作 前面个条件不能少，少了会出很异常的情况
     if (nil == toIndexPath || [atIndexPath isEqual:toIndexPath]) {
@@ -531,6 +565,9 @@ typedef NS_ENUM(NSInteger, WKScrollDirction) {
 
 }
 
+#pragma mark 自添加方法
+
+
 
 #pragma mark - UIGestureRecognizerDelegate methods
 
@@ -570,5 +607,48 @@ typedef NS_ENUM(NSInteger, WKScrollDirction) {
     return YES;
 }
 
+
+- (NSArray<NSValue *> *)calculateSectionsFrame
+{
+    NSUInteger sections = [self.collectionView numberOfSections];
+    NSMutableArray * arr =[NSMutableArray array];
+//    NSUInteger maxSection = [self.collectionView indexPathsForVisibleItems].lastObject.section;
+    for (NSUInteger i = 0; i < sections; i ++) {
+        NSUInteger sectionItemCount = [self.collectionView numberOfItemsInSection:i];
+        if (sectionItemCount <= 0) {
+            continue;
+        }
+        //第一个
+        NSIndexPath * fristIndexPath = [NSIndexPath indexPathForItem:0 inSection:i];
+        CGRect fristFrame = [self layoutAttributesForItemAtIndexPath:fristIndexPath].frame;
+        NSIndexPath * lastIndexPath = [NSIndexPath indexPathForItem:sectionItemCount - 1 inSection:i];
+        CGRect lastFrame = [self layoutAttributesForItemAtIndexPath:lastIndexPath].frame;
+        
+        //组合成section的frame
+        //分横向滚动和竖向滚动
+        //情况1 同一行
+        CGFloat width = lastFrame.origin.x + lastFrame.size.width;
+        CGFloat height = lastFrame.origin.y + lastFrame.size.height;
+        
+        switch (self.scrollDirection) {
+            case UICollectionViewScrollDirectionVertical:
+                if (width < self.collectionView.frame.size.width) {
+                    width = width < self.collectionView.frame.size.width ? self.collectionView.frame.size.width : width;
+                }
+                break;
+            case UICollectionViewScrollDirectionHorizontal:
+                if (height < self.collectionView.frame.size.height) {
+                    height = height < self.collectionView.frame.size.height ? self.collectionView.frame.size.height : height;
+                }
+                break;
+            default:
+                break;
+        }
+        
+        CGRect sectionFrame = CGRectMake(fristFrame.origin.x, fristFrame.origin.y, width, height);
+        [arr addObject:[NSValue valueWithCGRect:sectionFrame]];
+    }
+    return arr;
+}
 
 @end

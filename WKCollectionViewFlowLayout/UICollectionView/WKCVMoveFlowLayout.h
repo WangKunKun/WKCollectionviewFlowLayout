@@ -8,7 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
-
+typedef enum : NSUInteger {
+    WKCellMoveState_Back,
+    WKCellMoveState_Delete,
+    WKCellMoveState_Insert,
+} WKCellMoveState;
 
 
 @protocol WKCVMoveFlowLayoutDelegate <UICollectionViewDelegateFlowLayout>
@@ -46,6 +50,7 @@
 @end
 
 
+
 @interface WKCVMoveFlowLayout : UICollectionViewFlowLayout <UIGestureRecognizerDelegate>
 
 @property (nonatomic, assign) id<WKCVMoveFlowLayoutDelegate> delegate;
@@ -54,6 +59,7 @@
 @property (nonatomic, strong, readonly) UIPanGestureRecognizer *panGesture;
 @property (nonatomic, assign) CGSize recordingSize;//用于生成移动图的大小
 
+//- (void)calculateSectionsFrame;
 
 @end
 

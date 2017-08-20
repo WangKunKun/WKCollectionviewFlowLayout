@@ -152,10 +152,14 @@ static NSString * cellID = @"WKCollectionViewCell";
     [_datasource addObject:two];
 
 
-    
-
+ 
 }
 
+
+- (void)viewDidAppear:(BOOL)animated
+{
+
+}
 
 //继承关系
 #pragma mark UICollectionViewDataSource Methods
@@ -287,6 +291,7 @@ static NSString * cellID = @"WKCollectionViewCell";
         [_datasource[indexPath.section] removeObjectAtIndex:indexPath.row];
         [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
     }
+    [collectionView reloadData];
 }
 
 
