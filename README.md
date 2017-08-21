@@ -7,7 +7,7 @@
 
 ####**[效果展示](http://wangkunkun.github.io/iOS/wkcollectionviewflowlayout.html)**
 
-
+![cv.gif](cv.gif)
 ####**特点**####
 
 1. 功能
