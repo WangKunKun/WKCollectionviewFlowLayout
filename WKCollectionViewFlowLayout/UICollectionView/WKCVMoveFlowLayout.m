@@ -409,6 +409,9 @@ typedef NS_ENUM(NSInteger, WKScrollDirction) {
 {
     switch (pan.state) {
         case UIGestureRecognizerStateChanged: {
+            if (!_reorderingCellIndexPath) {
+                return;
+            }
             //translation
             _panTranslation = [pan translationInView:self.collectionView];
             _cellFakeView.center = CGPointMake(_cellFakeViewCenter.x + _panTranslation.x, _cellFakeViewCenter.y + _panTranslation.y);
