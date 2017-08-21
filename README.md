@@ -4,6 +4,8 @@
 
 
 
+####[简书主页](http://www.jianshu.com/u/a492221b5126)
+联系方式-357863248@qq.com
 
 ####**[效果展示](http://wangkunkun.github.io/iOS/wkcollectionviewflowlayout.html)**
 
@@ -36,8 +38,7 @@
 		Insets		CollectionView中Cell与边框的距离
 		VORH		CollectionView中流式布局的方式-行/列
 		
-		
-		
+
 
 
 		
