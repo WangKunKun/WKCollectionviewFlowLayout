@@ -366,6 +366,8 @@ typedef NS_ENUM(NSInteger, WKScrollDirction) {
             //回归动画
             //如果是删除操作，首先得到model
             //如果不可移动 则删除
+            
+#pragma mark 由于项目使用需要(跨组移动定义为删除，但是删除实质是从本组中删除，但是添加到另一个之前定义好的组，所以本质的删除操作，改为移动动画)，移除动画可改为移动动画 需要和model挂钩， 动画需修改 如果使用也需要这样的话  建议增加代理，传需要被移除的indexpath出去生成一个新的indexpath进来 实现移动
                 UICollectionViewCell * cell = [self.collectionView cellForItemAtIndexPath:currentCellIndexPath];
                 UICollectionViewLayoutAttributes *attributes = [self layoutAttributesForItemAtIndexPath:currentCellIndexPath];
                 [UIView animateWithDuration:.3f delay:0 options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionCurveEaseInOut animations:^{
