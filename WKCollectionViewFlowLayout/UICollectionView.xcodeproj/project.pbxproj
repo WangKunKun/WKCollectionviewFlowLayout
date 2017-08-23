@@ -31,6 +31,7 @@
 		18E53F1F1BE9ED8A004FD1E2 /* UIViewExt.m in Sources */ = {isa = PBXBuildFile; fileRef = 18E53F1E1BE9ED8A004FD1E2 /* UIViewExt.m */; };
 		18FF139F1BF039B2008B459D /* WKCVMoveFlowLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FF139E1BF039B2008B459D /* WKCVMoveFlowLayout.m */; };
 		18FF13A11BF1EE13008B459D /* CollectionViewStyle.plist in Resources */ = {isa = PBXBuildFile; fileRef = 18FF13A01BF1EE13008B459D /* CollectionViewStyle.plist */; };
+		EAF0FBB41F4DAC9F00748307 /* MainVC.m in Sources */ = {isa = PBXBuildFile; fileRef = EAF0FBB31F4DAC9F00748307 /* MainVC.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -87,6 +88,8 @@
 		18FF139D1BF039B2008B459D /* WKCVMoveFlowLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WKCVMoveFlowLayout.h; sourceTree = "<group>"; };
 		18FF139E1BF039B2008B459D /* WKCVMoveFlowLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WKCVMoveFlowLayout.m; sourceTree = "<group>"; };
 		18FF13A01BF1EE13008B459D /* CollectionViewStyle.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = CollectionViewStyle.plist; sourceTree = "<group>"; };
+		EAF0FBB21F4DAC9F00748307 /* MainVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainVC.h; sourceTree = "<group>"; };
+		EAF0FBB31F4DAC9F00748307 /* MainVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainVC.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -163,6 +166,8 @@
 				18AABA221BE99CA200ED9142 /* AppDelegate.m */,
 				18AABA241BE99CA200ED9142 /* ViewController.h */,
 				18AABA251BE99CA200ED9142 /* ViewController.m */,
+				EAF0FBB21F4DAC9F00748307 /* MainVC.h */,
+				EAF0FBB31F4DAC9F00748307 /* MainVC.m */,
 				18FF139D1BF039B2008B459D /* WKCVMoveFlowLayout.h */,
 				18FF139E1BF039B2008B459D /* WKCVMoveFlowLayout.m */,
 				18E53F201BE9FAAD004FD1E2 /* PrefixHeader.pch */,
@@ -350,6 +355,7 @@
 			files = (
 				18E53F1F1BE9ED8A004FD1E2 /* UIViewExt.m in Sources */,
 				18FF139F1BF039B2008B459D /* WKCVMoveFlowLayout.m in Sources */,
+				EAF0FBB41F4DAC9F00748307 /* MainVC.m in Sources */,
 				18AABA261BE99CA200ED9142 /* ViewController.m in Sources */,
 				18E53F1C1BE9D517004FD1E2 /* WKCollectionViewCell.m in Sources */,
 				18AABA231BE99CA200ED9142 /* AppDelegate.m in Sources */,

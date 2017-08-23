@@ -8,9 +8,17 @@
 
 #import <UIKit/UIKit.h>
 
+typedef enum : NSUInteger {
+    SameExchange = 0,
+    AllExchange,
+    SameExchangeLimit,
+    AllExchangeLimit,
+    AllExchangeAndAutoInsert_Delete
+} WKStyle;
+
 @interface ViewController : UIViewController
 
-
+@property (nonatomic, assign) WKStyle type;
 
 @end
 

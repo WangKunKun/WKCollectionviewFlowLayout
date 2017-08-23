@@ -123,8 +123,8 @@ static NSString * cellID = @"WKCollectionViewCell";
     //FlowLayout样式
     WKCVMoveFlowLayout * flowLayout = [[WKCVMoveFlowLayout alloc] init];
     [flowLayout setScrollDirection:_collectinViewStyle.scrollDirection];
-    flowLayout.isAutoDelete = YES;
-    flowLayout.isAutoInsert = YES;
+    flowLayout.isAutoDelete = self.type == AllExchangeAndAutoInsert_Delete;
+    flowLayout.isAutoInsert = self.type == AllExchangeAndAutoInsert_Delete;
     
     _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 0, kScreen_Width, kScreen_Height ) collectionViewLayout:flowLayout];
     _collectionView.dataSource = self;
@@ -194,9 +194,26 @@ static NSString * cellID = @"WKCollectionViewCell";
 
 - (BOOL)collectionView:(UICollectionView *)collectionView itemAtIndexPath:(NSIndexPath *)fromIndexPath canMoveToIndexPath:(NSIndexPath *)toIndexPath
 {
+    
+
+    switch (self.type) {
+        case AllExchange:
+        case AllExchangeAndAutoInsert_Delete:
+            return YES;
+            break;
+        case AllExchangeLimit:
+            return toIndexPath.row > 2;
+        case SameExchange:
+            return fromIndexPath.section == toIndexPath.section;
+        default:
+            return fromIndexPath.section == toIndexPath.section && toIndexPath.row > 2;
+
+            break;
+    }
+    
     NSLog(@"%@",NSStringFromSelector(_cmd));
     //规定可被交换的范围
-//    toIndexPath.row > 1 && toIndexPath.section <= 0
+//     && toIndexPath.section <= 0
 #pragma waring 此处定义item可交换区域
 //    fromIndexPath.section == toIndexPath.section 同组内交换
     return YES;
@@ -234,6 +251,18 @@ static NSString * cellID = @"WKCollectionViewCell";
     NSLog(@"%@",NSStringFromSelector(_cmd));
     //限定可移动的item
 //    indexPath.section <= 0 && indexPath.row > 1
+    
+    switch (self.type) {
+        case AllExchange:
+        case AllExchangeAndAutoInsert_Delete:
+        case SameExchange:
+            return YES;
+            break;
+        case AllExchangeLimit:
+        case SameExchangeLimit:
+            return indexPath.row > 2;
+    }
+    
 #pragma waring 此处定义 item是否可移动
     return YES;
 }
