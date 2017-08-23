@@ -440,8 +440,8 @@ typedef NS_ENUM(NSInteger, WKScrollDirction) {
             } else
             {
                 //左右滚动
-                if (CGRectGetMaxX(_cellFakeView.frame) >= self.collectionView.contentOffset.x + (self.collectionView.width - _scrollTrigerEdgeInsets.right)) {
-                    if (ceilf(self.collectionView.contentOffset.x) < self.collectionView.contentSize.width - self.collectionView.width ) {
+                if (CGRectGetMaxX(_cellFakeView.frame) >= self.collectionView.contentOffset.x + (self.collectionView.frame.size.width - _scrollTrigerEdgeInsets.right)) {
+                    if (ceilf(self.collectionView.contentOffset.x) < self.collectionView.contentSize.width - self.collectionView.frame.size.width ) {
                         self.myScrollDirection = WKScrollDirctionRight;
                         [self setUpDisplayLink];
                     }
@@ -477,7 +477,7 @@ typedef NS_ENUM(NSInteger, WKScrollDirction) {
     //修正toIndexPath 防止由于 fakeview 自动滚动后 由于没有toIndexPath 导致cell丢失
     if (nil == toIndexPath )
     {
-        CGPoint position = CGPointMake(_cellFakeView.center.x, _cellFakeView.center.y - _cellFakeView.size.height/2.0f);
+        CGPoint position = CGPointMake(_cellFakeView.center.x, _cellFakeView.center.y - _cellFakeView.frame.size.height/2.0f);
         toIndexPath = [self.collectionView indexPathForItemAtPoint:position];
         
         //修正如果当前点为section中无cell的空白区域，则变更为插入
