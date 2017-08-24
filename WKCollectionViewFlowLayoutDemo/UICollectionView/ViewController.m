@@ -17,83 +17,6 @@
 
 
 
-
-//collectionViewStyle解析类——读取plist文件得到视图配置基本信息
-@interface ConfigurationFile : NSObject
-
-@property (nonatomic, assign) CGSize cellSize;
-@property (nonatomic, assign) CGFloat   itemSpacing;
-@property (nonatomic, assign) CGFloat   sectionSpacing;
-@property (nonatomic, assign) CGFloat   LineSpacing;
-@property (nonatomic, assign) UIEdgeInsets scrollTrigerEdgeInsets;
-@property (nonatomic, assign) UICollectionViewScrollDirection scrollDirection;
-@property (nonatomic, assign) UIEdgeInsets insets;
-
-+ (ConfigurationFile *)shared;
-
-@end
-static ConfigurationFile * CF = nil;
-@implementation ConfigurationFile
-
-+ (ConfigurationFile *)shared
-{
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        CF = [ConfigurationFile new];
-        [CF DataInitialization];
-    });
-    
-    
-    return CF;
-}
-
-//数据初始化
-- (void)DataInitialization
-{
-    NSString * path = [[NSBundle mainBundle] pathForResource:@"CollectionViewStyle" ofType:@"plist"];
-    NSMutableDictionary * dict = [NSMutableDictionary dictionaryWithContentsOfFile:path];
-    NSAssert(nil != dict, @"%@ isn't exist",path );
-    
-    //Cell间距
-    NSNumber * itemSpacing    = dict[@"ItemSpacing"];
-    //分组间距
-    NSNumber * sectionSpacing = dict[@"SectionSpacing"];
-    //排列方式间距
-    NSNumber * linespacing    = dict[@"LineSpacing"];
-
-
-    self.itemSpacing    = [itemSpacing floatValue];
-    self.sectionSpacing = [sectionSpacing floatValue];
-    self.LineSpacing    = [linespacing floatValue];
-
-    NSNumber * width    = dict[@"CellSize"][@"Width"];
-    NSNumber * height   = dict[@"CellSize"][@"Height"];
-    //Cell尺寸
-    self.cellSize       = CGSizeMake([width floatValue], [height floatValue]);
-    
-    NSNumber * top    = dict[@"MaximumEffectiveRangeOfAutoScroll"][@"Top"];
-    NSNumber * left   = dict[@"MaximumEffectiveRangeOfAutoScroll"][@"Left"];
-    NSNumber * bottom = dict[@"MaximumEffectiveRangeOfAutoScroll"][@"Bottom"];
-    NSNumber * right  = dict[@"MaximumEffectiveRangeOfAutoScroll"][@"Right"];
-    //自动滚动尺寸
-    self.scrollTrigerEdgeInsets = UIEdgeInsetsMake([top floatValue], [left floatValue], [bottom floatValue], [right floatValue]);
-
-    
-    NSNumber * VORH = dict[@"VORH"];
-    //collectionView排序方式
-    self.scrollDirection = [VORH integerValue] > 0 ? UICollectionViewScrollDirectionVertical : UICollectionViewScrollDirectionHorizontal;
-    
-    top    = dict[@"Insets"][@"Top"];
-    left   = dict[@"Insets"][@"Left"];
-    bottom = dict[@"Insets"][@"Bottom"];
-    right  = dict[@"Insets"][@"Right"];
-    //collectionView中Cell与边框的间距
-    self.insets = UIEdgeInsetsMake([top floatValue], [left floatValue], [bottom floatValue], [right floatValue]);
-}
-
-@end
-
-
 static NSString * cellID = @"WKCollectionViewCell";
 
 
@@ -104,8 +27,6 @@ static NSString * cellID = @"WKCollectionViewCell";
 @property (nonatomic, strong) UICollectionView * collectionView;
 @property (nonatomic, strong) NSMutableArray<NSMutableArray *> * datasource;
 
-//视图style
-@property (nonatomic, strong) ConfigurationFile * collectinViewStyle;
 
 
 @end
@@ -117,12 +38,10 @@ static NSString * cellID = @"WKCollectionViewCell";
     // Do any additional setup after loading the view, typically from a nib.
     _datasource = [NSMutableArray array];
 
-    //style描述文件
-    _collectinViewStyle = [ConfigurationFile shared];
 
     //FlowLayout样式
     WKCVMoveFlowLayout * flowLayout = [[WKCVMoveFlowLayout alloc] init];
-    [flowLayout setScrollDirection:_collectinViewStyle.scrollDirection];
+    [flowLayout setScrollDirection:UICollectionViewScrollDirectionVertical];
     flowLayout.isAutoDelete = self.type == AllExchangeAndAutoInsert_Delete;
     flowLayout.isAutoInsert = self.type == AllExchangeAndAutoInsert_Delete;
     
@@ -272,28 +191,28 @@ static NSString * cellID = @"WKCollectionViewCell";
 //参数相关
 - (CGSize)collectionView:(UICollectionView *)collectionView sizeForItemsInSection:(NSInteger)section
 {
-    return _collectinViewStyle.cellSize;
+    return CGSizeMake(60, 60);
 }
 - (UIEdgeInsets)insetsForCollectionView:(UICollectionView *)collectionView
 {
-    return _collectinViewStyle.insets;
+    return UIEdgeInsetsMake(20, 20, 20, 20);
 }
 - (CGFloat)sectionSpacingForCollectionView:(UICollectionView *)collectionView
 {
-    return _collectinViewStyle.LineSpacing;
+    return 20;
 }
 - (CGFloat)minimumInteritemSpacingForCollectionView:(UICollectionView *)collectionView
 {
-    return _collectinViewStyle.itemSpacing;
+    return 20;
 }
 - (CGFloat)minimumLineSpacingForCollectionView:(UICollectionView *)collectionView
 {
-    return _collectinViewStyle.LineSpacing;
+    return 20;
 }
 
 - (UIEdgeInsets)autoScrollTrigerEdgeInsets:(UICollectionView *)collectionView
 {
-    return _collectinViewStyle.scrollTrigerEdgeInsets;
+    return UIEdgeInsetsMake(15, 15, 15, 15);
 }
 
 //准备拖动图标

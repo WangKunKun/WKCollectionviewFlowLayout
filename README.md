@@ -4,12 +4,23 @@
 
 
 
-###[简书主页](http://www.jianshu.com/u/a492221b5126)
-联系方式-357863248@qq.com
+
+###[联系方式-357863248@qq.com](http://www.jianshu.com/u/a492221b5126)
 
 ###**[效果展示]**
 
-![cv.gif](cv.gif)
+- 跨组交换带自动插入和删除
+![cv.gif](跨组交换带自动插入删除.gif)
+
+- 跨组交换 限定cell不能被交换
+![](跨组交换限定.gif)
+- 跨组交换
+![](跨组交换.gif)
+- 同组交换
+![](同组交换.gif)
+- 同组交换 限定cell不能被交换
+![](同组交换限定.gif)
+
 ###**特点**####
 
 1. 功能
@@ -25,20 +36,21 @@
 2. 高度监控
 
 	- 利用代理模式，提供了一系列的方法实时监控Cell的布局位置和数据位置
-	
-	
-3. 高度方便定制
-		
-		仅需通过配置CollectionViewStyle.plist文件可迅速定制CollectionView布局的一系列的属性如：
-		MaximumEffectiveRangeOfAutoScroll 触发自动滚动的范围
-		SectionSpacing 分组间距
-		ItemSpacing cell间距
-		LineSpacing 行/列间距
-		CellSize	Cell的宽高
-		Insets		CollectionView中Cell与边框的距离
-		VORH		CollectionView中流式布局的方式-行/列
 		
 
 
 
-		
+###集成方式
+
+- 下载demo提取文件集成
+
+
+- 现已加入cocoapods豪华午餐
+
+```
+platform :ios, '8.0'
+
+target 'TargetName' do
+pod 'WKCVMoveFlowLayout'
+end
+```

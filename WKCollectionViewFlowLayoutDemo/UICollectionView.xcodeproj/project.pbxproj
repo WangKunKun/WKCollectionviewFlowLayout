@@ -29,7 +29,6 @@
 		18AABA441BE99CA200ED9142 /* UICollectionViewUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 18AABA431BE99CA200ED9142 /* UICollectionViewUITests.m */; };
 		18E53F1C1BE9D517004FD1E2 /* WKCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 18E53F1B1BE9D517004FD1E2 /* WKCollectionViewCell.m */; };
 		18E53F1F1BE9ED8A004FD1E2 /* UIViewExt.m in Sources */ = {isa = PBXBuildFile; fileRef = 18E53F1E1BE9ED8A004FD1E2 /* UIViewExt.m */; };
-		18FF13A11BF1EE13008B459D /* CollectionViewStyle.plist in Resources */ = {isa = PBXBuildFile; fileRef = 18FF13A01BF1EE13008B459D /* CollectionViewStyle.plist */; };
 		EA4388931F4DBA420069BE47 /* WKCVMoveFlowLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = EA4388921F4DBA420069BE47 /* WKCVMoveFlowLayout.m */; };
 		EAF0FBB41F4DAC9F00748307 /* MainVC.m in Sources */ = {isa = PBXBuildFile; fileRef = EAF0FBB31F4DAC9F00748307 /* MainVC.m */; };
 /* End PBXBuildFile section */
@@ -85,7 +84,6 @@
 		18E53F1D1BE9ED8A004FD1E2 /* UIViewExt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIViewExt.h; sourceTree = "<group>"; };
 		18E53F1E1BE9ED8A004FD1E2 /* UIViewExt.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIViewExt.m; sourceTree = "<group>"; };
 		18E53F201BE9FAAD004FD1E2 /* PrefixHeader.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
-		18FF13A01BF1EE13008B459D /* CollectionViewStyle.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = CollectionViewStyle.plist; sourceTree = "<group>"; };
 		EA4388911F4DBA420069BE47 /* WKCVMoveFlowLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WKCVMoveFlowLayout.h; sourceTree = "<group>"; };
 		EA4388921F4DBA420069BE47 /* WKCVMoveFlowLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WKCVMoveFlowLayout.m; sourceTree = "<group>"; };
 		EAF0FBB21F4DAC9F00748307 /* MainVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainVC.h; sourceTree = "<group>"; };
@@ -170,7 +168,6 @@
 				EAF0FBB21F4DAC9F00748307 /* MainVC.h */,
 				EAF0FBB31F4DAC9F00748307 /* MainVC.m */,
 				18E53F201BE9FAAD004FD1E2 /* PrefixHeader.pch */,
-				18FF13A01BF1EE13008B459D /* CollectionViewStyle.plist */,
 				18E53F1A1BE9D517004FD1E2 /* WKCollectionViewCell.h */,
 				18E53F1B1BE9D517004FD1E2 /* WKCollectionViewCell.m */,
 				18AABA271BE99CA200ED9142 /* Main.storyboard */,
@@ -328,7 +325,6 @@
 				18AABA2B1BE99CA200ED9142 /* Assets.xcassets in Resources */,
 				1836ED521BF2F31A007BBA3A /* 7.png in Resources */,
 				1836ED4A1BF2F31A007BBA3A /* 10.png in Resources */,
-				18FF13A11BF1EE13008B459D /* CollectionViewStyle.plist in Resources */,
 				1836ED4C1BF2F31A007BBA3A /* 12.png in Resources */,
 				1836ED511BF2F31A007BBA3A /* 6.png in Resources */,
 				1836ED4E1BF2F31A007BBA3A /* 3.png in Resources */,
