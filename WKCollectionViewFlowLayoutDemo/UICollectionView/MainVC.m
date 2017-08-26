@@ -24,7 +24,6 @@
     // Do any additional setup after loading the view.
     _titles = @[@"同组交换",@"跨组交换",@"同组交换 限定cell 不能被交换",@"跨组交换 限定cell不能被交换",@"跨组交换 带自动插入和删除"];
     
-    
     _tableView = [[UITableView alloc] initWithFrame:self.view.frame style:(UITableViewStylePlain)];
     [self.view addSubview:_tableView];
     _tableView.delegate = self;
