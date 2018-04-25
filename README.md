@@ -2,12 +2,13 @@
 
 
 
+##要求
+
+XCode6.0+, ios7.0+
 
 
 
-###[联系方式-357863248@qq.com](http://www.jianshu.com/u/a492221b5126)
-
-###**[效果展示]**
+##使用效果
 
 - 跨组交换带自动插入和删除
 
@@ -29,7 +30,7 @@
 
 ![](同组交换限定.gif)
 
-###**特点**####
+##**特点**
 
 1. 功能
 
@@ -44,11 +45,8 @@
 2. 高度监控
 
 	- 利用代理模式，提供了一系列的方法实时监控Cell的布局位置和数据位置
-		
 
-
-
-###集成方式
+##安装方式
 
 - 下载demo提取文件集成
 
@@ -62,3 +60,22 @@ target 'TargetName' do
 pod 'WKCVMoveFlowLayout'
 end
 ```
+
+##使用方式
+
+1. 引入`WKCVMoveFlowLayout .h`
+2. 新建`WKCVMoveFlowLayout`实例作为UICollectionView的Layout
+
+```
+WKCVMoveFlowLayout * flowLayout = [[WKCVMoveFlowLayout alloc] init];
+[flowLayout setScrollDirection:UICollectionViewScrollDirectionVertical];
+flowLayout.isAutoDelete = YES;//拖出区域自动删除
+flowLayout.isAutoInsert = YES;//拖入尾部区域自动插入
+UICollectionView   * collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 0, 375, 667) collectionViewLayout:flowLayout];
+```
+
+##联系方式
+
+357863248@qq.com
+
+[简书地址](http://www.jianshu.com/u/a492221b5126)
